@@ -1,0 +1,188 @@
+
+RSA algorithm:
+
+dictionary:
+* gcd(x,y) = greatest common devisor
+* ~= Congruence 
+* phi(x) Euler's totient function (phi(x)) counts the positive integers 
+			up to a given integer n that are relatively prime to n
+
+
+encryption - decryption:
+-------------------------
+output: 
+------
+* a public key (n,e) - (n must be larger then any text value)
+* a private key d
+
+step 1:
+-------
+Choose 2 large prime numbers (p,q)
+
+step 2:
+-------
+compute n = p*q
+
+step 3:
+--------
+Euler's totient function (phi(x)) counts the positive integers 
+up to a given integer n that are relatively prime to n
+
+phi(n) = (p-1)*(q-1) (p and q are prime)
+
+
+step 4:
+-------
+select e from { 1 , 2 ... phi(n)-1} such that gcd(e, phi(n))=1
+
+step 5:
+-------
+compute the private key d such that d*e ~= 1 mod phi(n) 
+*~= Congruence 
+
+
+
+example: 
+step 1 : choose p = 5, q = 11
+-------
+step 2 : n = p * q = 55
+-------
+step 3 : phi(n) = 4 * 10 = 40
+-------
+step 4: choose e from { 1 ,2 ... phi(n)-1 = 39) such that gcd(e,phi(n))= 1 choosed e = 3
+-------
+step 5: compute d such that d*e ~= 1 mod phi(n)
+-------						d*3 ~= 1 mod 40 ->  gcd(3,40)=1 -> 3*t + 40*s = 1 -> d = (t mod 40) ->
+							3*(-13) + 40*(1) = 1 -> d = (-13 mod 40) -> d = 27
+							
+summary: public key - (n,e) = (55,3)
+		 private key - d = 27
+		 
+		 text x = 4
+		 x_cipher = (x^e mod n) = (4^3 mod 55) = 9
+		 x = (x_cipher^d mod n)  = (9^27 mod 55) = 4
+
+
+source: https://www.youtube.com/watch?v=errJZmu31Fg&list=PL1xkDS1G9As4Yz_te20j1A9evIjt5Z06e&index=87
+theory:
+-------
+
+1) y~= x^e mod n
+
+2) y^d ~= (x^e)^d mod n 
+
+3) from (2) y^d ~= x^(ed) mod n
+
+e * d ~= mod phi(n) - by definition (step 5)
+
+this means phi(n) divides e*d-1 or ed-1 = k * phi(n) for some k integer
+
+4) from (3) e*d = 1 + k*phi(n) -> y^d ~= x^(1+k*phi(n)) mod n 
+
+5) y^d ~= x*(x^phi(n))^k mod n
+
+consider 2 cases:
+1) gcd(x,n) = 1
+2) gcd(x,n) != 1
+  
+  
+case1: gcd(x,n) = 1 
+-----																					  
+6) using Euler's theorem, we know that x^phi(n) ~= 1 mod n -> from (5) y^d ~= X*(1)^k mod n
+y^d ~= x mod n - done
+																	   
+case2: gcd(x,n)!= 1
+-----
+n = p*q , where p and q are prime
+if gcd(x, p*q) != 1, then gcd(x, p*q) = p or q or p*q - p*q is not possible because  x < n by definition
+therefor, gcd(x, p*q) = p or q assume it's p
+7) so x = p*t for some integer t
+
+inner proof:
+1) x^(e*d) ~= (x mod p)
+2) x^(e*d) ~= (x mod q)
+
+proof for 1:
+----------
+from (7) x = p*t -> x ~= (0 mod p) -> x^(e*d)~= (0^(e*d) mod p) -> x^(e*d)~=(x mod p) - done
+
+proof for 2:
+-----------
+since gcd(x, p*q) = p -> gcd(x, q) = 1 -> from Euler's theorem x^phi(q) ~=(1 mod q)
+
+8) x^(q-1) ~= 1 mod q (q is prime by definition so phi(q) = q-1)
+
+from (4) x^(e*d) ~= (x^(1+k*phi(n)) mod q) ~= (x * (x^phi(q))^k mod q) 
+
+phi(n) = phi(p*q)=(p-1)*(q-1)
+
+x^(e*d) ~= x * (x^(p-1)(q-1))^k mod q ~= x*(x^(q-1))^((p-1)*k) mod q
+~= x*(1) mod q (from (8)) -> x^(ed) ~= (x mod q) - done
+
+
+now - since gcd(q,p) = 1
+and x^(ed) ~= x mod p
+and x^(ed) ~= x mod q
+then x^(ed) ~= x mod(p*q)
+
+from (3) y^d ~= (x^(ed) mod n)  ~= x mod (p*q = n) -> y^d ~= (x mod n) done
+
+
+
+
+Euler's therom proof:
+--------------------
+The residue classes modulo n that are coprime to n form a group under multiplication. The order of that group is φ(n) 
+where φ denotes Euler's totient function.
+ Lagrange's theorem states that the order of any subgroup of a finite group divides the order of the entire group,
+ in this case φ(n). If a is any number coprime to n then a is in one of these residue classes,
+ and its powers a, a^2, ... , a^k are a subgroup modulo n, with ak ≡ 1 (mod n).
+ Lagrange's theorem says k must divide φ(n), i.e. there is an integer M such that kM = φ(n). But then,
+
+a^phi(n) = a ^ (km) = (a^k)^m ~= 1^m =1 ~= 1 mod n
+
+
+
+
+
+RSA signature: https://www.youtube.com/watch?v=04Pw9Y2628o
+-------------
+
+step 1: calculate the RSA public key (n,e) and private key d as above.
+------
+
+step 2: take the message m and raise it do the power of d mod n : m' = (m^d mod n) this is the signed message
+------
+
+step 3: raise m' to the power of e mod n : m'' = (m'^e mod n)
+-------
+
+step 4: if m'' = m - signature is valid was signed with the private key
+------  else m'' !=m this message is fake
+
+example
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
