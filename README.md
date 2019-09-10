@@ -25,8 +25,7 @@ blockchain architecture:
 * mining is when a miner searches for a combination upon the open trasactions to provide a proof of work
 * a block is a list of valid transaction with some exttra data (such as the proof of work), each blovk is hashed with the previous block hash, so it's impossible to change the blockchain backwards
 * a blockchain is a list of blocks
-
-
+* when adding new peers, the peers with the longest blockchain wins and it spreads upon all the connected nodes 
 
 
 
